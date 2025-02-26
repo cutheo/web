@@ -3,52 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Danh sách công việc</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Phân việc kỹ thuật</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Danh sách công việc</h1>
-    <ul id="tasks"></ul>
-    <button onclick="sendLocation()">Check-in</button>
-    <input type="file" accept="image/*" capture="camera" id="photo">
-    <button onclick="uploadPhoto()">Gửi ảnh</button>
+    <div class="container">
+        <header>
+            <h1>Phân việc kỹ thuật</h1>
+            <p id="date"></p>
+        </header>
+        
+        <section class="welcome">
+            <p>Xin chào, <span id="username">Người dùng</span></p>
+        </section>
+
+        <section class="task">
+            <h2>Phân việc hôm nay</h2>
+            <div class="task-box">
+                <p id="task-message">Thi công hệ thống 32 camera và đầu ghi camera 32 kênh Hikvision.  
+               <br>Khách Hàng: Anh Nam 0977.777.777
+             <br>  <br>Địa chỉ: 47 Trần Hưng Đạo, Phường Cầu Kho, Quận 1.
+             <br>  <br> Kỹ thuật thi công: Trung, Nhân, Tuyền.</p>
+            </div>
+        </section>
+
+        <section class="actions">
+            <button id="checkin-btn">Check-in</button>
+            <button id="upload-btn">Gửi ảnh hiện trường</button>
+        </section>
+    </div>
+
+    <!-- Popup Check-in -->
+    <div id="checkin-popup" class="popup">
+        <div class="popup-content">
+            <h3>Chọn loại Check-in</h3>
+            <button class="checkin-option">Đầu ngày</button>
+            <button class="checkin-option">Giữa ngày</button>
+            <button class="checkin-option">Cuối ngày</button>
+            <button class="checkin-option">Tới công trình</button>
+            <button id="close-popup">Đóng</button>
+        </div>
+    </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand(); 
+        // Hiển thị ngày tháng hôm nay
+        document.getElementById("date").innerText = new Date().toLocaleDateString("vi-VN");
 
-        function loadTasks() {
-            google.script.run.withSuccessHandler(renderTasks).getTasks();
-        }
+        // Hiển thị tên Telegram (tạm thời demo)
+        document.getElementById("username").innerText = "Trung";
 
-        function renderTasks(data) {
-            let taskList = document.getElementById("tasks");
-            taskList.innerHTML = "";
-            data.forEach(task => {
-                let li = document.createElement("li");
-                li.innerHTML = `${task.id} - ${task.description} (${task.status})`;
-                taskList.appendChild(li);
-            });
-        }
-
-        function sendLocation() {
-            navigator.geolocation.getCurrentPosition((position) => {
-                google.script.run.sendLocation(position.coords.latitude, position.coords.longitude);
-                alert("Đã check-in!");
-            });
-        }
-
-        function uploadPhoto() {
-            let file = document.getElementById("photo").files[0];
-            let reader = new FileReader();
-            reader.onloadend = function () {
-                google.script.run.uploadPhoto(reader.result);
-                alert("Đã gửi ảnh!");
-            };
-            reader.readAsDataURL(file);
-        }
-
-        window.onload = loadTasks;
+        // Xử lý popup check-in
+        document.getElementById("checkin-btn").addEventListener("click", function() {
+            document.getElementById("checkin-popup").style.display = "flex";
+        });
+        document.getElementById("close-popup").addEventListener("click", function() {
+            document.getElementById("checkin-popup").style.display = "none";
+        });
     </script>
 </body>
-</html>
+
+<style> 
+
+/* Reset mặc định */
+body {
+    font-family: Arial, sans-serif;
+    background: #121212;
+    color: white;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 22px;
+    margin-bottom: 5px;
+}
+
+#welcome p {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Hộp phân việc */
+.task-box {
+    background: #1e1e1e;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 10px;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid transparent;
+    animation: borderAnimation 4s infinite linear;
+}
+
+/* Hiệu ứng chạy viền */
+@keyframes borderAnimation {
+    0% {
+        border-color: rgba(0, 123, 255, 0.2);
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    }
+    50% {
+        border-color: red;
+        box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+    }
+    100% {
+        border-color: red;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    }
+}
+
+/* Nút hành động */
+.actions button {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#checkin-btn {
+    background: #007bff;
+    color: white;
+}
+
+#upload-btn {
+    background: #28a745;
+    color: white;
+}
+
+.actions button:hover {
+    opacity: 0.8;
+}
+
+/* Popup Check-in */
+.popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-content {
+    background: #1e1e1e;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.popup-content button {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.popup-content button:hover {
+    background: #0056b3;
+}
+
+#close-popup {
+    background: red;
+}
+#task-message {
+    text-align: left;
+    line-height: 1.5;
+}
+
+
+</style>
